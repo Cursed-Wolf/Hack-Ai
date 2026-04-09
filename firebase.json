@@ -1,0 +1,20 @@
+{
+  "hosting": {
+    "public": "dashboard/frontend/dist",
+    "cleanUrls": true,
+    "rewrites": [
+      {
+        "source": "/login/**",
+        "destination": "/login/index.html"
+      },
+      {
+        "source": "/login",
+        "destination": "/login/index.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

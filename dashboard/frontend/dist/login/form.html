@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>AI Placement Dashboard Login</title>
+    <link rel="stylesheet" href="/login/form.css">
+</head>
+
+<body>
+
+    <div class="spline-background">
+        <script type="module" src="https://unpkg.com/@splinetool/viewer/build/spline-viewer.js"></script>
+        <spline-viewer url="https://prod.spline.design/PhFnE8MKpWVk5ksT/scene.splinecode" events-target="global"></spline-viewer>
+    </div>
+
+    <div class="container">
+        <div class="login-card">
+            <h2>Login</h2>
+            <p class="subtitle">Smart Career. Smart Future.</p>
+
+            <form id="loginForm">
+
+                <div class="role-select">
+                    <button type="button" class="role active">Student</button>
+                    <button type="button" class="role">Admin</button>
+                </div>
+
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                </div>
+
+                <div class="input-group password-group">
+                    <label for="password">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                        <span class="toggle-password" onclick="togglePassword()">👁️</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-btn">Login</button>
+                
+                <button type="button" class="google-btn" onclick="signInWithGoogle()" style="width: 100%; padding: 0.8rem; margin-top: 1rem; border-radius: 8px; border: 1px solid #ccc; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 500;">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo" style="width: 18px; height: 18px;">
+                    Sign in with Google
+                </button>
+
+                <div class="footer-links">
+                    <p class="extra">Forgot Password?</p>
+                    <p class="extra" id="authPrompt">Don't have an account? <a href="#" onclick="toggleMode(event)" class="auth-link">Sign up</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="/login/firebase.js"></script>
+    <script type="module" src="/login/auth.js"></script>
+    <script src="/login/form.js"></script>
+</body>
+
+</html>
