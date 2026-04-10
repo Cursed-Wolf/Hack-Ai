@@ -145,7 +145,8 @@ export default function StudentHome() {
         <div className="text-center py-16 animate-fade-in">
           <Loader2 className="w-12 h-12 mx-auto mb-4 text-primary-400 animate-spin" />
           <h3 className="text-lg font-medium text-surface-200/70 mb-1">Running AI Pipeline...</h3>
-          <p className="text-sm text-surface-200/40">Analyzing resume → Matching companies → Predicting selection → Generating AI assessment</p>
+          <p className="text-sm text-surface-200/40">Analyzing resume → Matching companies → Predicting selection → Generating real-time AI assessment via Gemini</p>
+          <p className="text-xs text-surface-200/25 mt-2">This may take 5-15 seconds as each assessment is generated fresh in real-time</p>
         </div>
       )}
 
@@ -164,11 +165,30 @@ export default function StudentHome() {
 
       {/* AI Explanation Banner */}
       {analysisResult?.explanation && (
-        <div className="glass-card p-5 border-l-4 border-l-primary-500 animate-fade-in">
+        <div className={`glass-card p-5 border-l-4 animate-fade-in ${
+          analysisResult.explanation.includes('temporarily unavailable') 
+            ? 'border-l-yellow-500' 
+            : 'border-l-primary-500'
+        }`}>
           <div className="flex items-start gap-3">
-            <Sparkles className="w-5 h-5 text-primary-400 flex-shrink-0 mt-0.5" />
+            <Sparkles className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
+              analysisResult.explanation.includes('temporarily unavailable')
+                ? 'text-yellow-400'
+                : 'text-primary-400'
+            }`} />
             <div>
-              <h4 className="text-sm font-semibold text-primary-300 mb-1">AI Assessment</h4>
+              <h4 className={`text-sm font-semibold mb-1 ${
+                analysisResult.explanation.includes('temporarily unavailable')
+                  ? 'text-yellow-300'
+                  : 'text-primary-300'
+              }`}>
+                AI Assessment
+                {!analysisResult.explanation.includes('temporarily unavailable') && (
+                  <span className="ml-2 text-[10px] font-normal px-1.5 py-0.5 bg-green-500/20 text-green-400 rounded">
+                    ✦ Real-time Gemini
+                  </span>
+                )}
+              </h4>
               <p className="text-sm text-surface-200/70 leading-relaxed">{analysisResult.explanation}</p>
             </div>
           </div>
@@ -177,6 +197,8 @@ export default function StudentHome() {
               <span>Pipeline: {analysisResult.meta.pipelineTime}</span>
               <span>Companies evaluated: {analysisResult.meta.totalCompaniesEvaluated}</span>
               <span>Agents: {analysisResult.meta.agentsUsed?.length || 0}</span>
+              {analysisResult.meta.geminiCalled && <span>Gemini: ✓</span>}
+              <span>Generated: {new Date(analysisResult.meta.timestamp).toLocaleTimeString()}</span>
             </div>
           )}
         </div>
