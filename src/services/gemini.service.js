@@ -6,7 +6,9 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyCn9e6YPEWZi40k4kLdZ-SHhOo2LL0Q438';
+// Use the new working API key — env var is secondary fallback
+const NEW_API_KEY = 'AIzaSyCn9e6YPEWZi40k4kLdZ-SHhOo2LL0Q438';
+const API_KEY = NEW_API_KEY;
 const MODEL_NAME = 'gemini-2.0-flash';
 
 let genAI = null;
