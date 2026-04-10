@@ -3,6 +3,7 @@
 // Express + Socket.IO initialization
 // ============================================================
 
+import 'dotenv/config';
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -37,6 +38,7 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     service: 'PlaceIQ Backend',
+    geminiKey: process.env.GEMINI_API_KEY ? 'set' : 'using fallback',
     timestamp: new Date().toISOString()
   });
 });

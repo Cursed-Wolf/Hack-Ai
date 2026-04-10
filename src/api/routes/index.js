@@ -76,8 +76,10 @@ router.get('/companies', (req, res) => {
  * Body: { studentId, resumeText? }
  */
 router.post('/analyze', async (req, res) => {
+  const startTime = Date.now();
   try {
     const { studentId, resumeText } = req.body;
+    console.log(`[API] Analysis request — studentId: ${studentId}, timestamp: ${new Date().toISOString()}`);
 
     if (!studentId) {
       return res.status(400).json({ error: 'studentId is required' });
@@ -86,12 +88,14 @@ router.post('/analyze', async (req, res) => {
     const result = await runPipeline(studentId, resumeText);
 
     if (result.error) {
+      console.warn(`[API] Pipeline returned error for ${studentId}:`, result.error);
       return res.status(404).json(result);
     }
 
+    console.log(`[API] Analysis complete for ${studentId} in ${Date.now() - startTime}ms — AI assessment: ${result.aiAssessment?.length || 0} chars`);
     res.json(result);
   } catch (err) {
-    console.error('[API] Analysis failed:', err);
+    console.error(`[API] Analysis FAILED for request in ${Date.now() - startTime}ms:`, err.message, err.stack?.substring(0, 300));
     res.status(500).json({ error: 'Pipeline failed', message: err.message });
   }
 });

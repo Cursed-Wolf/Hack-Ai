@@ -1,13 +1,13 @@
 // ============================================================
 // PlaceIQ — Gemini Service
 // SINGLE CALL per analysis — fast, dynamic, no caching
-// Uses gemini-2.5-flash-lite for speed + availability
+// Uses gemini-2.0-flash for speed + availability
 // ============================================================
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyDJMpkxjYo_nwlbyNpZtGiVwcIYqLo9nn0';
-const MODEL_NAME = 'gemini-2.5-flash-lite';
+const API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyCn9e6YPEWZi40k4kLdZ-SHhOo2LL0Q438';
+const MODEL_NAME = 'gemini-2.0-flash';
 
 let genAI = null;
 let model = null;
@@ -17,36 +17,55 @@ try {
   model = genAI.getGenerativeModel({
     model: MODEL_NAME,
     generationConfig: {
-      temperature: 0.8,
-      maxOutputTokens: 400,
-      topP: 0.9,
+      temperature: 0.9,
+      maxOutputTokens: 600,
+      topP: 0.95,
     }
   });
-  console.log(`[GeminiService] Ready — model: ${MODEL_NAME}`);
+  console.log(`[GeminiService] Ready — model: ${MODEL_NAME}, key: ${API_KEY.slice(0, 8)}...`);
 } catch (err) {
-  console.warn('[GeminiService] Init failed:', err.message);
+  console.error('[GeminiService] Init failed:', err.message);
 }
 
 const FALLBACK = 'AI assessment temporarily unavailable. Showing system-generated insights.';
 
 /**
- * Generate text from Gemini — ONE call, fast, with single retry.
+ * Generate text from Gemini — ONE call, fast, with exponential backoff retry.
  */
 export async function generateExplanation(prompt) {
-  if (!model) return FALLBACK;
+  if (!model) {
+    console.error('[Gemini] Model not initialized — returning fallback');
+    return FALLBACK;
+  }
 
-  for (let attempt = 1; attempt <= 2; attempt++) {
+  const MAX_RETRIES = 3;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
+      console.log(`[Gemini] Attempt ${attempt}/${MAX_RETRIES} — sending prompt (${prompt.length} chars)`);
       const result = await model.generateContent(prompt);
-      const text = result.response.text()?.trim();
-      return text || FALLBACK;
+      const response = result.response;
+      const text = response.text()?.trim();
+      
+      if (!text) {
+        console.warn('[Gemini] Empty response received');
+        return FALLBACK;
+      }
+      
+      console.log(`[Gemini] Success — received ${text.length} chars`);
+      return text;
     } catch (err) {
-      if (attempt < 2 && (err.message?.includes('429') || err.message?.includes('503'))) {
-        console.warn(`[Gemini] Retry ${attempt}/2...`);
-        await new Promise(r => setTimeout(r, 3000));
+      const errMsg = err.message || String(err);
+      console.error(`[Gemini] Attempt ${attempt}/${MAX_RETRIES} failed:`, errMsg.substring(0, 120));
+      
+      // Retry on rate limits or server errors
+      if (attempt < MAX_RETRIES && (errMsg.includes('429') || errMsg.includes('503') || errMsg.includes('500') || errMsg.includes('RESOURCE_EXHAUSTED'))) {
+        const delay = Math.pow(2, attempt) * 1000; // 2s, 4s exponential backoff
+        console.warn(`[Gemini] Retrying in ${delay}ms...`);
+        await new Promise(r => setTimeout(r, delay));
         continue;
       }
-      console.warn(`[Gemini] Failed:`, err.message?.substring(0, 80));
+      
+      console.error(`[Gemini] Final failure — returning fallback. Error: ${errMsg.substring(0, 200)}`);
       return FALLBACK;
     }
   }
