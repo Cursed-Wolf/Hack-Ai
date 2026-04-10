@@ -6,9 +6,12 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Use the new working API key — env var is secondary fallback
-const NEW_API_KEY = 'AIzaSyCn9e6YPEWZi40k4kLdZ-SHhOo2LL0Q438';
-const API_KEY = NEW_API_KEY;
+// Use environment variable strictly to prevent GitHub leaking the key again
+const API_KEY = process.env.GEMINI_API_KEY;
+
+if (!API_KEY) {
+  console.error('[GeminiService] CRITICAL: GEMINI_API_KEY is not defined in environment variables!');
+}
 
 // List of models to cycle through if quota is hit
 const FALLBACK_MODELS = [
