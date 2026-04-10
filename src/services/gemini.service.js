@@ -9,7 +9,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 // Use the new working API key — env var is secondary fallback
 const NEW_API_KEY = 'AIzaSyCn9e6YPEWZi40k4kLdZ-SHhOo2LL0Q438';
 const API_KEY = NEW_API_KEY;
-const MODEL_NAME = 'gemini-2.0-flash';
+const MODEL_NAME = 'gemini-2.5-flash-lite';
 
 let genAI = null;
 let model = null;
