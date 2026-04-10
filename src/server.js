@@ -43,6 +43,21 @@ app.get('/health', (req, res) => {
   });
 });
 
+app.get('/debug', (req, res) => {
+  import('fs').then(fs => {
+    const contents = fs.readFileSync('./src/services/gemini.service.js', 'utf8');
+    const hasFlashLite = contents.includes('gemini-2.5-flash-lite');
+    const has20Flash = contents.includes('gemini-2.0-flash');
+    res.json({
+      hasFlashLite,
+      has20Flash,
+      isDeployed: true
+    });
+  }).catch(err => {
+    res.json({ error: err.message });
+  });
+});
+
 // ─── Socket.IO ──────────────────────────────────────────────
 initEventEngine(io);
 
