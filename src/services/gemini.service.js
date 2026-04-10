@@ -31,6 +31,8 @@ try {
 
 const FALLBACK = 'AI assessment temporarily unavailable. Showing system-generated insights.';
 
+export let lastGeminiError = null;
+
 /**
  * Generate text from Gemini — ONE call, fast, with exponential backoff retry.
  */
@@ -50,14 +52,17 @@ export async function generateExplanation(prompt) {
       
       if (!text) {
         console.warn('[Gemini] Empty response received');
+        lastGeminiError = 'Empty response received';
         return FALLBACK;
       }
       
       console.log(`[Gemini] Success — received ${text.length} chars`);
+      lastGeminiError = null; // Clear error on success
       return text;
     } catch (err) {
       const errMsg = err.message || String(err);
       console.error(`[Gemini] Attempt ${attempt}/${MAX_RETRIES} failed:`, errMsg.substring(0, 120));
+      lastGeminiError = errMsg;
       
       // Retry on rate limits or server errors
       if (attempt < MAX_RETRIES && (errMsg.includes('429') || errMsg.includes('503') || errMsg.includes('500') || errMsg.includes('RESOURCE_EXHAUSTED'))) {

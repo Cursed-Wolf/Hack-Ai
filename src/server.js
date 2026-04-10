@@ -43,6 +43,8 @@ app.get('/health', (req, res) => {
   });
 });
 
+import { lastGeminiError } from './services/gemini.service.js';
+
 app.get('/debug', (req, res) => {
   import('fs').then(fs => {
     const contents = fs.readFileSync('./src/services/gemini.service.js', 'utf8');
@@ -51,10 +53,11 @@ app.get('/debug', (req, res) => {
     res.json({
       hasFlashLite,
       has20Flash,
-      isDeployed: true
+      isDeployed: true,
+      lastGeminiError
     });
   }).catch(err => {
-    res.json({ error: err.message });
+    res.json({ error: err.message, lastGeminiError });
   });
 });
 
